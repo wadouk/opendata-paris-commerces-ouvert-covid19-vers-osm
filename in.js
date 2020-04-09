@@ -35,15 +35,14 @@ const o = {
     type: 'Feature',
     geometry: u.fields.geo_shape,
     properties: {
-      'contact:mail': u.fields.mail,
+      'contact:email': u.fields.mail,
       name: u.fields.nom_du_commerce,
       'source': u.datasetid,
-      'source:last-modification': u.record_timestamp,
-      'opening_hours:covid19': 'same',
-      'source:id': u.recordid,
+      'opening_hours:covid19': 'open',
       'note': u.fields.precisions,
       website: u.fields.site_internet,
-      'contact:teĺ': toISOTel(u.fields.telephone),
+      'contact:phone': toISOTel(u.fields.telephone),
+      'delivery:covid19': true,
       ...toOSMTags(u)
     }
   }))
