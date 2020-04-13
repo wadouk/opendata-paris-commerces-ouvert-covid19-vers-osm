@@ -1,4 +1,5 @@
 const t = require('./coronavirus-commercants-parisiens-livraison-a-domicile.json');
+const enrich = require('./enrich.json');
 
 const r = {
   'Alimentation générale et produits de première nécessité': {'shop': 'convenience'}
@@ -22,11 +23,38 @@ function toOSMTags (u) {
   const {fields} = u;
   const {precisions, type_de_commerce} = fields;
 
-  return r[type_de_commerce]
+  return r[type_de_commerce];
 }
 
-function toISOTel(tel) {
-  return tel ? tel.replace(/0(\d)[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})/, '+33 $1 $2 $3 $4 $5') : tel
+function toISOTel (tel) {
+  return tel ? tel.replace(/0(\d)[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})/, '+33 $1 $2 $3 $4 $5') : tel;
+}
+
+function toProperties (u, e) {
+  const c = e.filter(e2 => e2.mail === u.fields['mail'])[0]
+
+  let spreadElements = filterEmptyTags(c);
+  let newVar = {
+    'contact:email': u.fields.mail,
+    name: u.fields.nom_du_commerce,
+    'opening_hours:covid19': 'open',
+    'note': u.fields.precisions,
+    website: u.fields.site_internet,
+    'contact:phone': toISOTel(u.fields.telephone),
+    ...toOSMTags(u),
+    ...spreadElements
+  };
+  return newVar;
+}
+
+function filterEmptyTags(o) {
+  return o ? Object.entries(o)
+    .filter(([k, v]) => Boolean(v) || k === 'mail')
+    .reduce((o2, [k, v]) => {
+      o2[k] = k === 'contact:phone'? toISOTel(v) : v
+      return o2
+  }, {}) : {}
+
 }
 
 const o = {
@@ -34,17 +62,7 @@ const o = {
   features: t.map(u => ({
     type: 'Feature',
     geometry: u.fields.geo_shape,
-    properties: {
-      'contact:email': u.fields.mail,
-      name: u.fields.nom_du_commerce,
-      'source': u.datasetid,
-      'opening_hours:covid19': 'open',
-      'note': u.fields.precisions,
-      website: u.fields.site_internet,
-      'contact:phone': toISOTel(u.fields.telephone),
-      'delivery:covid19': true,
-      ...toOSMTags(u)
-    }
+    properties: toProperties(u, enrich)
   }))
 };
 
