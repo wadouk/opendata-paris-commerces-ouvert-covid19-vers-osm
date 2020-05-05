@@ -2,11 +2,11 @@ const t = require('./coronavirus-commercants-parisiens-livraison-a-domicile.json
 const enrich = require('./enrich.json');
 
 const r = {
-  'Alimentation générale et produits de première nécessité': {'shop': 'convenience'}
+  'Alimentation générale et produits de première nécessité': {'shop': 'convenience;supermarket'}
   , 'Articles médicaux et orthopédiques': {'shop': 'medical_supply'}
   , 'Blanchisserie-teinturerie': {'shop': 'laundry'}
   , 'Boucherie - charcuterie - rôtisserie': {'shop': 'butcher'}
-  , 'Boulangerie - pâtisserie': {'shop': 'bakery'}
+  , 'Boulangerie - pâtisserie': {'shop': 'bakery;pastry'}
   , 'Bricolage': {'shop': 'doityourself'}
   , 'Commerce de détail de boissons': {'shop': 'wine'}
   , 'Épicerie fine': {'shop': 'deli'}
@@ -15,8 +15,8 @@ const r = {
   , 'Pharmacies et parapharmacies': {'amenity': 'pharmacy'}
   , 'Poissonnerie': {'shop': 'seafood'}
   , 'Presse et papeterie': {'shop': 'newsagent'}
-  , 'Primeur': {'shop': 'greengrocer'}
-  , 'Restaurant ou traiteur': {'shop': 'restaurant'}
+  , 'Primeur': {'shop': 'greengrocer;farm'}
+  , 'Restaurant ou traiteur': {'amenity': 'restaurant', "craft" : "caterer"}
 };
 
 function toOSMTags (u) {
@@ -33,16 +33,19 @@ function toISOTel (tel) {
 function toProperties (u, e) {
   const c = e.filter(e2 => e2.mail === u.fields['mail'])[0]
 
-  let spreadElements = filterEmptyTags(c);
+  if (c) {
+    return
+  }
+
   let newVar = {
     'contact:email': u.fields.mail,
     name: u.fields.nom_du_commerce,
     'opening_hours:covid19': 'open',
+    'delivery:covid19': 'yes',
     'note': u.fields.precisions,
     website: u.fields.site_internet,
     'contact:phone': toISOTel(u.fields.telephone),
     ...toOSMTags(u),
-    ...spreadElements
   };
   return newVar;
 }
@@ -61,6 +64,7 @@ const o = {
   type: 'FeatureCollection',
   features: t.map(u => ({
     type: 'Feature',
+    id: u.recordid,
     geometry: u.fields.geo_shape,
     properties: toProperties(u, enrich)
   }))

@@ -1,0 +1,2 @@
+curl -L "https://opendata.paris.fr/explore/dataset/coronavirus-commercants-parisiens-livraison-a-domicile/download/?format=json&timezone=Europe/Berlin&lang=fr" > coronavirus-commercants-parisiens-livraison-a-domicile.json
+node in.js > out.geojson
