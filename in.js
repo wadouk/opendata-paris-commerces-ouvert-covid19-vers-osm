@@ -16,7 +16,7 @@ const r = {
   , 'Poissonnerie': {'shop': 'seafood'}
   , 'Presse et papeterie': {'shop': 'newsagent'}
   , 'Primeur': {'shop': 'greengrocer;farm'}
-  , 'Restaurant ou traiteur': {'amenity': 'restaurant', "craft" : "caterer"}
+  , 'Restaurant ou traiteur': {'amenity': 'restaurant;fast_food', "craft" : "caterer"}
 };
 
 function toOSMTags (u) {
@@ -27,7 +27,7 @@ function toOSMTags (u) {
 }
 
 function toISOTel (tel) {
-  return tel ? tel.replace(/0(\d)[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})/, '+33 $1 $2 $3 $4 $5') : tel;
+  return tel ? tel.replace(/0(\d)[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})[ \.](\d{2})/, '+33 $1$2$3$4$5') : tel;
 }
 
 function toProperties (u, e) {
